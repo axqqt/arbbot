@@ -5,7 +5,6 @@ import {FlashLoanSimpleReceiverBase, IPoolAddressesProvider} from "@aave/core-v3
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import {IUniswapV2Router01} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol"; // Importing the IUniswapV2Router01
 
 contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
     IUniswapV2Router02 public uniswapRouter;
@@ -78,7 +77,7 @@ contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
         address token,
         uint256 amountIn
     ) internal view returns (uint256) {
-        address;
+        address[] memory path = new address[](2);
         path[0] = token;
         path[1] = router.WETH();
 
@@ -94,7 +93,7 @@ contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
     ) internal returns (uint256) {
         IERC20(token).approve(address(buyRouter), amountIn);
 
-        address;
+        address[] memory buyPath = new address[](2);
         buyPath[0] = buyRouter.WETH();
         buyPath[1] = token;
 
@@ -108,7 +107,7 @@ contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
         uint256 boughtAmount = amounts[1];
         IERC20(token).approve(address(sellRouter), boughtAmount);
 
-        address;
+        address[] memory sellPath = new address[](2);
         sellPath[0] = token;
         sellPath[1] = sellRouter.WETH();
 
