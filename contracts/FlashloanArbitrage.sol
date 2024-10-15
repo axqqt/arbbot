@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {FlashLoanSimpleReceiverBase, IPoolAddressesProvider} from "@aave/core-v3/contracts/flashloan/base/FlashLoanSimpleReceiverBase.sol";
+import {FlashLoanSimpleReceiverBase} from "@aave/core-v3/contracts/flashloan/base/FlashLoanSimpleReceiverBase.sol";
+import {IPoolAddressesProvider} from "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
@@ -20,9 +21,8 @@ contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
     constructor(
         address _addressProvider,
         address _uniswapRouter,
-        address _sushiswapRouter,
-        address initialOwner
-    ) FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressProvider)) Ownable(initialOwner) {
+        address _sushiswapRouter
+    ) FlashLoanSimpleReceiverBase(IPoolAddressesProvider(_addressProvider)) Ownable(msg.sender) {
         uniswapRouter = IUniswapV2Router02(_uniswapRouter);
         sushiswapRouter = IUniswapV2Router02(_sushiswapRouter);
 
@@ -97,7 +97,8 @@ contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
         buyPath[0] = buyRouter.WETH();
         buyPath[1] = token;
 
-        uint256[] memory amounts = buyRouter.swapExactETHForTokens{value: amountIn}(
+        uint256[] memory amounts = buyRouter.swapExactTokensForTokens(
+            amountIn,
             0,
             buyPath,
             address(this),
@@ -111,7 +112,7 @@ contract FlashloanArbitrage is FlashLoanSimpleReceiverBase, Ownable {
         sellPath[0] = token;
         sellPath[1] = sellRouter.WETH();
 
-        uint256[] memory soldAmounts = sellRouter.swapExactTokensForETH(
+        uint256[] memory soldAmounts = sellRouter.swapExactTokensForTokens(
             boughtAmount,
             0,
             sellPath,
